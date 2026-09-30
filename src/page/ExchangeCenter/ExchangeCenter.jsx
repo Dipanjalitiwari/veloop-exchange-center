@@ -11,7 +11,7 @@ import HowExchangeWorks from "../../components/exchange/HowExchangeWorks";
 
 import exchangeOptions from "../../data/exchangeData";
 
-import "../../styles/exchange.module.css";
+import "../../styles/exchange.css";
 
 function ExchangeCenter() {
   const [availableGems, setAvailableGems] = useState(420);
