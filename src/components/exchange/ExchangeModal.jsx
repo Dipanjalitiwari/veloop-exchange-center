@@ -1,4 +1,4 @@
-import {useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 function ExchangeModal({
   option,
@@ -9,45 +9,95 @@ function ExchangeModal({
 }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const confirmLock = useRef(false);
-  const [error , setError]= useState("")
+  const [error, setError] = useState("");
+
   if (!option) return null;
 
   const hasEnoughGems = availableGems >= option.requiredGems;
 
-  const gemsAfterConversion = availableGems - option.requiredGems;
+  const gemsAfterConversion =
+    availableGems - option.requiredGems;
 
-  const vesAfterConversion = availableVEs + option.receiveVEs;
+  const vesAfterConversion =
+    availableVEs + option.receiveVEs;
 
   return (
     <div className="modal-overlay">
       <div className="exchange-modal">
-        <button className="modal-close" onClick={onClose}>
-            ×
+
+        {/* Close Button */}
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close conversion modal"
+        >
+          ×
         </button>
 
-        <div className="modal-icon">💎</div>
-
-        <h2>Confirm Conversion</h2>
-
-        <p className="modal-subtitle">
-          Review your reward conversion before confirming.
-        </p>
-
-        <div className="modal-conversion">
-          <div>
-            <span>Gems</span>
-            <strong>💎 {option.requiredGems}</strong>
+        {/* Modal Header */}
+        <div className="modal-header">
+          <div className="modal-icon-wrap">
+            <div className="modal-icon">💎</div>
           </div>
 
-          <div className="modal-arrow">↓</div>
+          <span className="modal-badge">
+            ✦ REWARD CONVERSION
+          </span>
 
-          <div>
-            <span>VEs</span>
-            <strong>VE {option.receiveVEs}</strong>
-          </div>
+          <h2>Confirm Conversion</h2>
+
+          <p className="modal-subtitle">
+            Review your reward exchange before confirming.
+          </p>
         </div>
 
+        {/* Conversion Preview */}
+        <div className="modal-conversion-card">
+
+          <div className="modal-currency">
+            <span className="modal-currency-label">
+              YOU SPEND
+            </span>
+
+            <div className="modal-currency-value">
+              <span>💎</span>
+              <strong>{option.requiredGems}</strong>
+            </div>
+
+            <small>Gems</small>
+          </div>
+
+          <div className="modal-arrow">
+            →
+          </div>
+
+          <div className="modal-currency">
+            <span className="modal-currency-label">
+              YOU RECEIVE
+            </span>
+
+            <div className="modal-currency-value ve-value">
+              <span>VE</span>
+              <strong>{option.receiveVEs}</strong>
+            </div>
+
+            <small>VEs</small>
+          </div>
+
+        </div>
+
+        {/* Exchange Rate */}
+        <div className="modal-rate">
+          <span>Exchange rate</span>
+
+          <strong>
+            {option.requiredGems} Gems → {option.receiveVEs} VEs
+          </strong>
+        </div>
+
+        {/* Balance Preview */}
         <div className="balance-preview">
+
           <div>
             <span>Gems after conversion</span>
             <strong>{gemsAfterConversion}</strong>
@@ -55,30 +105,51 @@ function ExchangeModal({
 
           <div>
             <span>VEs after conversion</span>
-            <strong>{vesAfterConversion.toLocaleString()}</strong>
+            <strong>
+              {vesAfterConversion.toLocaleString()}
+            </strong>
           </div>
+
         </div>
 
+        {/* Insufficient Gems */}
         {!hasEnoughGems && (
           <div className="insufficient-message">
-            <strong>Not enough Gems</strong>
-            <p>
-              You need {option.requiredGems - availableGems} more Gems to unlock
-              this conversion.
-            </p>
+            <div className="message-icon">!</div>
+
+            <div>
+              <strong>Not enough Gems</strong>
+
+              <p>
+                You need{" "}
+                {option.requiredGems - availableGems} more Gems
+                to unlock this conversion.
+              </p>
+            </div>
           </div>
         )}
 
+        {/* Conversion Error */}
         {error && (
           <div className="conversion-error">
-            <strong>Conversion Failed</strong>
-            <p>{error}
-            </p>
+            <div className="message-icon">!</div>
+
+            <div>
+              <strong>Conversion Failed</strong>
+
+              <p>{error}</p>
+            </div>
           </div>
         )}
 
+        {/* Actions */}
         <div className="modal-actions">
-          <button className="cancel-button" onClick={onClose}>
+
+          <button
+            className="cancel-button"
+            onClick={onClose}
+            disabled={isConfirming}
+          >
             Cancel
           </button>
 
@@ -86,30 +157,50 @@ function ExchangeModal({
             <button
               className="confirm-button"
               disabled={isConfirming}
-              
               onClick={() => {
                 if (confirmLock.current) return;
-                 confirmLock.current=true;
+
+                confirmLock.current = true;
                 setIsConfirming(true);
 
                 setTimeout(() => {
-                  try{
-                  onConfirm(option);
-                } catch (err){
-                  setError("Something went wrong. Please try again.");
-                  setIsConfirming(false);
-                }
-              }, 700);
+                  try {
+                    onConfirm(option);
+                  } catch (err) {
+                    setError(
+                      "Something went wrong. Please try again."
+                    );
+
+                    setIsConfirming(false);
+                    confirmLock.current = false;
+                  }
+                }, 700);
               }}
             >
-              {isConfirming ? "Converting..." : "Confirm Conversion"}
+              {isConfirming
+                ? "Converting..."
+                : "Confirm Conversion"}
+
+              {!isConfirming && <span>→</span>}
             </button>
           ) : (
-            <button className="earn-button" onClick={onClose}>
+            <button
+              className="earn-button"
+              onClick={onClose}
+            >
               Earn More Gems
+              <span>→</span>
             </button>
           )}
+
         </div>
+
+        {/* Secure Note */}
+        <div className="modal-secure-note">
+          <span>✓</span>
+          <p>Your reward balance will update after confirmation.</p>
+        </div>
+
       </div>
     </div>
   );
